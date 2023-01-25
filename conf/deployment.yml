@@ -1,0 +1,32 @@
+# build:
+#   no_build: true
+
+# Custom section is used to store configurations that might be repetative.
+# Please read YAML documentation for details on how to use substitutions and anchors.
+custom:
+
+  email_notifications_props: &email_notifications_props
+    email_notifications:
+      on_failure:
+        - richard@ontargetcomputing.net 
+
+  basic-cluster-props: &basic-cluster-props
+    spark_version: "10.4.x-cpu-ml-scala2.12"
+
+  ci-cluster: &ci-cluster
+    new_cluster:
+      <<: *basic-cluster-props
+      num_workers: 1
+      cluser_id: "0124-003646-pqv9062d"  
+
+
+
+environments:
+  ci:
+    workflows:
+      - name: "hello-world-job"
+        <<: 
+          - *email_notifications_props
+        <<: *ci-cluster
+        spark_python_task:
+          python_file: "file://cdii_data_pipelines/hello_world.py"
