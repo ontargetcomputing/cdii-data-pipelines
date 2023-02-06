@@ -41,7 +41,7 @@ TEST_REQUIREMENTS = [
 ]
 
 setup(
-    name="ade_recurring_etl",
+    name="cdii_data_pipelines",
     packages=find_packages(exclude=["tests", "tests.*"]),
     setup_requires=["setuptools","wheel"],
     install_requires=PACKAGE_REQUIREMENTS,
