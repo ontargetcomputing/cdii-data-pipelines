@@ -22,7 +22,7 @@
 
 # COMMAND ----------
 
-# from ade_recurring_etl.tasks.sample_ml_task import SampleMLTask
+# from cdii_data_pipelines.tasks.sample_ml_task import SampleMLTask
 
 # pipeline = SampleMLTask.get_pipeline()
 # print(pipeline)

@@ -17,16 +17,51 @@ custom:
     new_cluster:
       <<: *basic-cluster-props
       num_workers: 1
-      cluser_id: "0124-003646-pqv9062d"  
+      cluser_id: "0124-003646-pqv9062d"
+      node_type_id: "Standard_DS3_v2"
 
 
 
 environments:
   ci:
     workflows:
-      - name: "hello-world-job"
-        <<: 
-          - *email_notifications_props
-        <<: *ci-cluster
-        spark_python_task:
-          python_file: "file://cdii_data_pipelines/hello_world.py"
+      # - name: "hello-world-job"
+      #   <<: 
+      #     - *email_notifications_props
+      #   <<: *ci-cluster
+      #   spark_python_task:
+      #     python_file: "file://cdii_data_pipelines/hello_world.py"
+
+    - name: "bronze-task"
+      tasks:
+        - task_key: "bronze"
+          existing_cluster_name: "Richard's Cluster"
+          spark_python_task:
+            python_file: "file://cdii_data_pipelines/tasks/bronze_task.py"
+            # this call supports all standard pytest arguments
+            # parameters: [ "--conf-file", "file:fuse://conf/tasks/hazard/wildfire/current/ci/extract.yml" ]         
+
+    - name: "WIP-Wildfires"
+        tasks:
+          - task_key: "set-batchid"
+            <<: *ci-cluster
+            spark_python_task:
+                python_file: "file://cdii_data_pipelines/tasks/set_batchid.py"
+                # this call supports all standard pytest arguments
+                parameters: [ "--conf-file", "file:fuse://conf/tasks/hazard/wildfire/current/ci/extract.yml" ]        
+          - task_key: "extract-points"
+            depends_on: 
+              - task_key: set-batchid
+            <<: *ci-cluster
+            spark_python_task:
+                python_file: "file://cdii_data_pipelines/tasks/hazard/wildfire/current/extract_points.py"
+                # this call supports all standard pytest arguments
+                parameters: [ "--conf-file", "file:fuse://conf/tasks/hazard/wildfire/current/ci/extract.yml" ]
+          - task_key: "extract-perimeters"
+            depends_on: 
+              - task_key: set-batchid
+            <<: *ci-cluster
+            spark_python_task:
+                python_file: "file://cdii_data_pipelines/tasks/hazard/wildfire/current/extract_perimeters.py"
+                # this call supports all standard pytest arguments
+                parameters: [ "--conf-file", "file:fuse://conf/tasks/hazard/wildfire/current/ci/extract.yml" ]          

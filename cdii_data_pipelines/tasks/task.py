@@ -37,6 +37,7 @@ class Task(ABC):
 
     def __init__(self, spark=None, init_conf=None):
         self.spark = self._prepare_spark(spark)
+        self.spark.conf.set("spark.sql.execution.arrow.enabled", "true")
         self.logger = self._prepare_logger()
         self.dbutils = self.get_dbutils()
         if init_conf:
@@ -52,8 +53,15 @@ class Task(ABC):
 
     @staticmethod
     def _prepare_spark(spark) -> SparkSession:
-        if not spark:
-            return SparkSession.builder.getOrCreate()
+        if not spark: 
+            return SparkSession.builder.getOrCreate() \
+              if "true" != os.environ.get('DEVELOPMENT') \
+              else \
+                SparkSession.builder \
+                  .master("local") \
+                  .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+                  .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
+                  .getOrCreate()
         else:
             return spark
 
@@ -118,7 +126,7 @@ class Task(ABC):
         self.logger.info("Determined stage={self.stage} from --stage job option")
 
     def _determine_job_metadata(self):
-      if self.dbutils is None or os.environ.get('IS_LOCAL'):
+      if self.dbutils is None or os.environ.get('DEVELOPMENT') == 'true':
         self.jobName = 'local'
         self.taskKey = 'local'
         self.runNum = 'local'
