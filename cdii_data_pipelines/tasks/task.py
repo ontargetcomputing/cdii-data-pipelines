@@ -110,7 +110,7 @@ class Task(ABC):
         log4j_logger = self.spark._jvm.org.apache.log4j  # noqa
         self.log4j_logger = log4j_logger
         thelogger = log4j_logger.LogManager.getLogger(self.__class__.__name__)
-        if os.environ.get("DEVELOPMENT") == "true":
+        if os.environ.get("LOCAL") == "true":
             thelogger.setLevel(log4j_logger.Level.DEBUG)
 
         return thelogger
@@ -132,21 +132,25 @@ class Task(ABC):
         self.logger.info("Determined stage={self.stage} from --stage job option")
 
     def _determine_job_metadata(self):
-      if self.dbutils is None or os.environ.get('DEVELOPMENT') == 'true':
-        self.jobName = 'local'
-        self.taskKey = 'local'
-        self.runNum = 'local'
-      else:
-        context = json.loads(self.dbutils.notebook.entry_point.getDbutils().notebook().getContext().toJson())
-        tags = context['tags']
-        if tags['jobName'] is not None:
-          self.jobName = tags['jobName']
-          self.taskKey = tags['taskKey']
-          self.runNum = tags['multitaskParentRunId']
+      # TODO fix this....not working on run from dbx
+      if False:
+        if self.dbutils is None or os.environ.get('LOCAL') == 'true':
+          self.jobName = 'local'
+          self.taskKey = 'local'
+          self.runNum = 'local'
         else:
-          self.jobName = 'local-dbx'
-          self.taskKey = 'local-dbx'
-          self.runNum = 'local-dbx'
+          context = json.loads(self.dbutils.notebook.entry_point.getDbutils().notebook().getContext().toJson())
+          tags = context['tags']
+          if tags['jobName'] is not None:
+            jobName = tags['jobName']
+            print( tags )
+            self.jobName = tags['jobName']
+            self.taskKey = tags['taskKey']
+            self.runNum = tags['multitaskParentRunId']
+          else:
+            self.jobName = 'local-dbx'
+            self.taskKey = 'local-dbx'
+            self.runNum = 'local-dbx'
 
 
     @abstractmethod

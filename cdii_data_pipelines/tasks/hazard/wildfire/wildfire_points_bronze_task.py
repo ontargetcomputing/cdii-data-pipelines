@@ -1,11 +1,11 @@
 from cdii_data_pipelines.tasks.bronze_task import BronzeTask
 import os
 
-class WildfireBronzeTask(BronzeTask):
+class WildfirePointsBronzeTask(BronzeTask):
     """
     """
     def __init__(self, init_conf: dict=None):
-      super(WildfireBronzeTask, self).__init__(init_conf=init_conf)
+      super(WildfirePointsBronzeTask, self).__init__(init_conf=init_conf)
 
 def entrypoint():  # pragma: no cover
     conf = {
@@ -19,7 +19,7 @@ def entrypoint():  # pragma: no cover
       },
       "agol_url": "https://chhsagency.maps.arcgis.com/home/",
       } if "true" == os.environ.get('DEVELOPMENT') else None
-    task = WildfireBronzeTask(init_conf=conf)
+    task = WildfirePointsBronzeTask(init_conf=conf)
     task.launch()
 
 if __name__ == '__main__':

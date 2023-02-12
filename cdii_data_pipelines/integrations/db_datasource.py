@@ -23,7 +23,7 @@ class DatabricksDataSource(DataSource):
 
         spark_dataFrame = spark.createDataFrame(pd.DataFrame(dataFrame))
 
-        spark_dataFrame.write.mode("overwrite").format("delta").saveAsTable(table_name)
+        spark_dataFrame.write.mode("overwrite").format("delta").option("mergeSchema", "true").saveAsTable(table_name)
         
-        self.logger.info("Dataset successfully written")
+        print("Dataset successfully written")
 
