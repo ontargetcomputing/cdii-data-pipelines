@@ -10,13 +10,12 @@ from cdii_data_pipelines import __version__
 
 PACKAGE_REQUIREMENTS = [
   "databricks-mosaic==0.3.7",
-  "pyyaml==6.0",
   "arcgis==2.0.1",
+  "pytz==2022.7.1",
+  "pyyaml==6.0",
   "shapely==2.0.1",
-  #"datetime==4.4",
   #"geoalchemy2==0.10.2",
   #"geopandas==0.10.2",
-  #"pytz==2021.3",
   #"sqlalchemy==1.4.31",
   #"psycopg2-binary==2.9.2",
   #"rtree==1.0.0",
