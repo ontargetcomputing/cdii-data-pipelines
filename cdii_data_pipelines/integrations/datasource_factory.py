@@ -15,7 +15,7 @@ class DataSourceFactory:
     
     @staticmethod
     def getAgolDataSource(params: dict=None, dbutils=None, stage: str='DEV') -> AgolDataSource:
-          if dbutils is None or os.environ.get('DEVELOPMENT') == 'true':
+          if dbutils is None or os.environ.get('LOCAL') == 'true':
               agol_user = os.environ.get(f'AGOL_USERNAME_{stage}')
               agol_password = os.environ.get(f'AGOL_PASSWORD_{stage}')
           else:
