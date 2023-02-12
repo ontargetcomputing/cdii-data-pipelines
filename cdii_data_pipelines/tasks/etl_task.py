@@ -42,7 +42,7 @@ class ETLTask(Task):
         self.destination.write(dataFrame=dataFrame, params=params['destination'], spark=self.spark) 
 
     @abstractmethod
-    def transform(self, dataFrame: DataFrame) -> DataFrame:
+    def transform(self, dataFrame: DataFrame,  params: dict=None) -> DataFrame:
         """
         Transform method - used to transform data received from source in preparation of loading
         :return:
@@ -55,6 +55,6 @@ class ETLTask(Task):
         :return:
         """
         dataFrame = self.extract(params=self.conf)
-        self.transform(dataFrame)
+        dataFrame = self.transform(dataFrame=dataFrame, params=self.conf)
         self.load(dataFrame=dataFrame, params=self.conf)
 

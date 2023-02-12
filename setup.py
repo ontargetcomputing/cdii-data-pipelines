@@ -9,27 +9,29 @@ from setuptools import find_packages, setup
 from cdii_data_pipelines import __version__
 
 PACKAGE_REQUIREMENTS = [
-  "pyyaml",
-  "arcgis==1.9.1",
-  "datetime==4.4",
-  "geoalchemy2==0.10.2",
-  "geopandas==0.10.2",
-  "pytz==2021.3",
-  "sqlalchemy==1.4.31",
-  "psycopg2-binary==2.9.2",
-  "rtree==1.0.0"
+  "databricks-mosaic==0.3.7",
+  "pyyaml==6.0",
+  "arcgis==2.0.1",
+  "shapely==2.0.1",
+  #"datetime==4.4",
+  #"geoalchemy2==0.10.2",
+  #"geopandas==0.10.2",
+  #"pytz==2021.3",
+  #"sqlalchemy==1.4.31",
+  #"psycopg2-binary==2.9.2",
+  #"rtree==1.0.0",
   ]
 
 # packages for local development and unit testing
 # please note that these packages are already available in DBR, there is no need to install them on DBR.
 LOCAL_REQUIREMENTS = [
-    # "pyspark==3.2.1",
-    # "delta-spark==1.1.0",
-    # "scikit-learn",
-    #"mlflow",
+    "pyspark==3.3.1",
+    "delta-spark==2.2.0",
     "PyArrow >= 1.0.0",
     "pandas",
-    "databricks-connect==10.4.*"
+    # "scikit-learn",
+    #"mlflow",
+    #"databricks-connect==11.3.0b0"
 ]
 
 TEST_REQUIREMENTS = [
@@ -37,6 +39,7 @@ TEST_REQUIREMENTS = [
     "pytest",
     "coverage[toml]",
     "pytest-cov",
+    "pytest-mock",
     "dbx>=0.7,<0.8"
 ]
 

@@ -14,12 +14,10 @@ def entrypoint():  # pragma: no cover
         "layer": 0,
       },
       "destination": {
-        "table": "california_fires_historical_points",
-        "primary_key": "IrwinID",
-        "modified_field": "ModifiedOnDateTime",
+        "table": "ahd_wildfires.bronze.california_fires_historical_points_good",
         "geometry_field": "geom"
       },
-      "agol_url": "https://chhsagency.maps.arcgis.com/home/",      
+      "agol_url": "https://chhsagency.maps.arcgis.com/home/",
       } if "true" == os.environ.get('DEVELOPMENT') else None
     task = WildfireBronzeTask(init_conf=conf)
     task.launch()

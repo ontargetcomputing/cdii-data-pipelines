@@ -5,6 +5,8 @@ import yaml
 import pathlib
 from pyspark.sql import SparkSession
 from delta import *
+from delta import configure_spark_with_delta_pip
+from delta.tables import *
 import sys
 import os
 import json
@@ -13,13 +15,16 @@ def get_dbutils(
     spark: SparkSession,
 ):  # please note that this function is used in mocking by its name
     try:
-        from pyspark.dbutils import DBUtils  # noqa
-
-        if "dbutils" not in locals():
-            utils = DBUtils(spark)
-            return utils
+        if os.environ.get('LOCAL') == 'true':
+            return None
         else:
-            return locals().get("dbutils")
+            from pyspark.dbutils import DBUtils  # noqa
+
+            if "dbutils" not in locals():
+                utils = DBUtils(spark)
+                return utils
+            else:
+                return locals().get("dbutils")
     except ImportError:
         return None
 
@@ -37,7 +42,7 @@ class Task(ABC):
 
     def __init__(self, spark=None, init_conf=None):
         self.spark = self._prepare_spark(spark)
-        self.spark.conf.set("spark.sql.execution.arrow.enabled", "true")
+        self.spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "true")
         self.logger = self._prepare_logger()
         self.dbutils = self.get_dbutils()
         if init_conf:
@@ -54,14 +59,15 @@ class Task(ABC):
     @staticmethod
     def _prepare_spark(spark) -> SparkSession:
         if not spark: 
-            return SparkSession.builder.getOrCreate() \
-              if "true" != os.environ.get('DEVELOPMENT') \
-              else \
-                SparkSession.builder \
-                  .master("local") \
-                  .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
-                  .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
-                  .getOrCreate()
+            if "true" != os.environ.get('LOCAL'):
+                return SparkSession.builder.getOrCreate()
+            else:
+                builder = SparkSession.builder.appName("MyApp") \
+                    .config("spark.jars.packages", "io.delta:delta-core_2.12:2.2.0") \
+                    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+                    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+
+                return configure_spark_with_delta_pip(builder).getOrCreate()                
         else:
             return spark
 
