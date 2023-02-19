@@ -1,21 +1,19 @@
 from cdii_data_pipelines.tasks.etl_task import ETLTask
 from cdii_data_pipelines.integrations.datasource import DataSource
 from pyspark.sql import SparkSession
-from pandas import DataFrame
+from pyspark.pandas import DataFrame
 from datetime import datetime
 import pytz
 from shapely import wkt
+import os
 
 class BronzeTask(ETLTask):
     """
-    BronzeTask is an ETLTask where no transformation is done on the data.  It is kept raw.
-    ETLTask.transform is provided, however, child classes must implement the.
     """
-    def __init__(self, spark: SparkSession=None, init_conf: dict=None, source_datasource: DataSource=None):
-      super(BronzeTask, self).__init__(spark=spark, init_conf=init_conf, source_datasource=source_datasource)
+    def __init__(self, spark: SparkSession=None, init_conf: dict=None, source_datasource: DataSource=None, destination_datasource: DataSource=None):
+      super(BronzeTask, self).__init__(spark=spark, init_conf=init_conf, source_datasource=source_datasource, destination_datasource=destination_datasource)
 
     def transform(self, dataFrame: DataFrame, params: dict=None) -> DataFrame:
-        
         if 'SHAPE' in dataFrame.columns:
             dataFrame = dataFrame.drop(columns=['SHAPE'])
 
@@ -29,3 +27,22 @@ class BronzeTask(ETLTask):
         dataFrame["ade_date_submitted"] = datetime.now(pytz.timezone("America/Los_Angeles")).date()
 
         return dataFrame
+
+
+def entrypoint():  # pragma: no cover
+    conf = {
+      "source": {
+        "dataset_id": "d957997ccee7408287a963600a77f61f",
+        "layer": 0
+      },
+      "destination": {
+        "table": "ahd_wildfires.bronze.california_fires_historical_points_good",
+        "geometry_field": "geom"
+      },
+      "agol_url": "https://chhsagency.maps.arcgis.com/home/",
+      } if "true" == os.environ.get('LOCAL') else None
+    task = BronzeTask(init_conf=conf)
+    task.launch()
+
+if __name__ == '__main__':
+    entrypoint()

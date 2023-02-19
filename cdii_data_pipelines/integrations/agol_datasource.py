@@ -33,7 +33,7 @@ class AgolDataSource(DataSource):
 
           geom = transformed["geometry"]
           gdf: gpd.GeoDataFrame = gpd.GeoDataFrame(gdf, crs=f'EPSG:4326', geometry=geom)
-        
+
         return gdf
         
     def write(self, dataFrame: DataFrame, params: dict=None, spark: SparkSession=None):

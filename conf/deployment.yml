@@ -34,38 +34,32 @@ environments:
 
     - name: "New Wildfire Pipeline"
       tasks:
-        - task_key: "wildfire_points_bronze"
+        - task_key: "points_bronze"
           existing_cluster_name: "Richard's Cluster"
           spark_python_task:
-            python_file: "file://cdii_data_pipelines/tasks/hazard/wildfire/wildfire_points_bronze_task.py"
-            parameters: [ "--conf-file", "file:fuse://conf/tasks/hazard/wildfire/wildfire_points_bronze_task.ci.yml" ]         
-        - task_key: "wildfire_perims_bronze"
+            python_file: "file://cdii_data_pipelines/tasks/bronze_task.py"
+            parameters: [ "--conf-file", "file:fuse://conf/tasks/hazard/wildfire/wildfire_points_bronze_task.ci.yml" ]
+        - task_key: "perims_bronze"
           existing_cluster_name: "Richard's Cluster"
           spark_python_task:
-            python_file: "file://cdii_data_pipelines/tasks/hazard/wildfire/wildfire_perims_bronze_task.py"
-            parameters: [ "--conf-file", "file:fuse://conf/tasks/hazard/wildfire/wildfire_perims_bronze_task.ci.yml" ]         
-
-    # - name: "WIP-Wildfires"
-    #     tasks:
-    #       - task_key: "set-batchid"
-    #         <<: *ci-cluster
-    #         spark_python_task:
-    #             python_file: "file://cdii_data_pipelines/tasks/set_batchid.py"
-    #             # this call supports all standard pytest arguments
-    #             parameters: [ "--conf-file", "file:fuse://conf/tasks/hazard/wildfire/current/ci/extract.yml" ]        
-    #       - task_key: "extract-points"
-    #         depends_on: 
-    #           - task_key: set-batchid
-    #         <<: *ci-cluster
-    #         spark_python_task:
-    #             python_file: "file://cdii_data_pipelines/tasks/hazard/wildfire/current/extract_points.py"
-    #             # this call supports all standard pytest arguments
-    #             parameters: [ "--conf-file", "file:fuse://conf/tasks/hazard/wildfire/current/ci/extract.yml" ]
-    #       - task_key: "extract-perimeters"
-    #         depends_on: 
-    #           - task_key: set-batchid
-    #         <<: *ci-cluster
-    #         spark_python_task:
-    #             python_file: "file://cdii_data_pipelines/tasks/hazard/wildfire/current/extract_perimeters.py"
-    #             # this call supports all standard pytest arguments
-    #             parameters: [ "--conf-file", "file:fuse://conf/tasks/hazard/wildfire/current/ci/extract.yml" ]          
+            python_file: "file://cdii_data_pipelines/tasks/bronze_task.py"
+            parameters: [ "--conf-file", "file:fuse://conf/tasks/hazard/wildfire/wildfire_perims_bronze_task.ci.yml" ]
+        - task_key: "silver"
+          existing_cluster_name: "Richard's Cluster"
+          depends_on: 
+            - task_key:  points_bronze
+            - task_key:  perims_bronze
+          spark_python_task:
+            python_file: "file://cdii_data_pipelines/tasks/hazard/wildfire/wildfire_silver.py"
+        - task_key: "gold"
+          existing_cluster_name: "Richard's Cluster"
+          depends_on: 
+            - task_key:  silver
+          spark_python_task:
+            python_file: "file://cdii_data_pipelines/tasks/hazard/wildfire/wildfire_gold.py"
+        - task_key: "green"
+          existing_cluster_name: "Richard's Cluster"
+          depends_on: 
+            - task_key:  gold
+          spark_python_task:
+            python_file: "file://cdii_data_pipelines/tasks/hazard/wildfire/wildfire_green.py"            

@@ -2,7 +2,7 @@ from cdii_data_pipelines.tasks.task import Task
 from cdii_data_pipelines.integrations.datasource_factory import DataSourceFactory
 from cdii_data_pipelines.integrations.datasource import DataSource
 from pyspark.sql import SparkSession
-from pandas import DataFrame
+from pyspark.pandas import DataFrame
 from abc import abstractmethod
 import os
 
@@ -11,7 +11,7 @@ class ETLTask(Task):
     ETLTask is an abstract class provides standard methods for ETL processes.  Child classes must implement the abstract classes.
     """
     def __init__(self, spark: SparkSession=None, init_conf: dict=None, source_datasource: DataSource=None, destination_datasource: DataSource=None):
-      super(ETLTask, self).__init__(spark, init_conf)
+      super(ETLTask, self).__init__(spark=spark, init_conf=init_conf)
       self.source = self.__prepare_source_datasource(source_datasource)
       self.destination = self.__prepare_destination_datasource(destination_datasource)
 
