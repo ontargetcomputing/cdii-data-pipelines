@@ -1,20 +1,21 @@
-from cdii_data_pipelines.integrations.datasource import DataSource
-from cdii_data_pipelines.integrations.agol_datasource import AgolDataSource
-from cdii_data_pipelines.integrations.db_datasource import DatabricksDataSource
+from cdii_data_pipelines.integrations.datasource import Datasource
+from cdii_data_pipelines.integrations.agol_datasource import AgolDatasource
+from cdii_data_pipelines.integrations.db_datasource import DatabricksDatasource
+from cdii_data_pipelines.integrations.datasource_type import DatasourceType
 import os
 
-class DataSourceFactory:
+class DatasourceFactory:
     @staticmethod
-    def getDataSource(source: str, params: dict=None, dbutils=None, stage: str='DEV') -> DataSource:
-        if source == 'AGOL':
-            return DataSourceFactory.getAgolDataSource(params)
-        elif source == 'DB':
-            return DataSourceFactory.getDatabricksDataSource(params)
+    def getDatasource(type: DatasourceType=DatasourceType.DATABRICKS, params: dict=None, dbutils=None, stage: str='DEV') -> Datasource:
+        if type == DatasourceType.AGOL:
+            return DatasourceFactory.getAgolDatasource(params)
+        elif type == DatasourceType.DATABRICKS:
+            return DatasourceFactory.getDatabricksDatasource(params)
         else:
-            raise ValueError(format)
+            raise ValueError(type)
     
     @staticmethod
-    def getAgolDataSource(params: dict=None, dbutils=None, stage: str='DEV') -> AgolDataSource:
+    def getAgolDatasource(params: dict=None, dbutils=None, stage: str='DEV') -> AgolDatasource:
           if dbutils is None or os.environ.get('LOCAL') == 'true':
               agol_user = os.environ.get(f'AGOL_USERNAME_{stage}')
               agol_password = os.environ.get(f'AGOL_PASSWORD_{stage}')
@@ -23,12 +24,12 @@ class DataSourceFactory:
               agol_password = dbutils.secrets.get("SECRET_KEYS", f'AGOL_PASSWORD_{stage}')
           
           url = params['agol_url']
-          return AgolDataSource( params={
+          return AgolDatasource( params={
             'url': url,
             'username': agol_user,
             'password': agol_password
           })
 
     @staticmethod
-    def getDatabricksDataSource(params: dict=None, dbutils=None, stage: str='DEV'):
-        return DatabricksDataSource()
+    def getDatabricksDatasource(params: dict=None, dbutils=None, stage: str='DEV'):
+        return DatabricksDatasource()

@@ -1,4 +1,4 @@
-from cdii_data_pipelines.integrations.datasource import DataSource
+from cdii_data_pipelines.integrations.datasource import Datasource
 from pyspark.pandas import DataFrame
 from pyspark.sql import SparkSession
 from arcgis import GIS
@@ -8,7 +8,7 @@ import json
 import geopandas as gpd
 import pandas as pd
 
-class AgolDataSource(DataSource):
+class AgolDatasource(Datasource):
     """
     """
     def __init__(self, params: dict=None ):

@@ -1,10 +1,10 @@
-from cdii_data_pipelines.integrations.datasource import DataSource
+from cdii_data_pipelines.integrations.datasource import Datasource
 from pyspark.sql import SparkSession
 import pandas as pd
 from pyspark.pandas import DataFrame
 
 # Databricks Datasource
-class DatabricksDataSource(DataSource):
+class DatabricksDatasource(Datasource):
     """
     """
     def __init__(self, params: dict=None ):

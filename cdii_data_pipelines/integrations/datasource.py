@@ -2,7 +2,7 @@ from pyspark.pandas import DataFrame
 from pyspark.sql import SparkSession
 from abc import abstractmethod
 
-class DataSource():
+class Datasource():
     """
     """
     def __init__(self):

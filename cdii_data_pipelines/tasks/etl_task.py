@@ -1,6 +1,7 @@
 from cdii_data_pipelines.tasks.task import Task
-from cdii_data_pipelines.integrations.datasource_factory import DataSourceFactory
-from cdii_data_pipelines.integrations.datasource import DataSource
+from cdii_data_pipelines.integrations.datasource_factory import DatasourceFactory
+from cdii_data_pipelines.integrations.datasource_type import DatasourceType
+from cdii_data_pipelines.integrations.datasource import Datasource
 from pyspark.sql import SparkSession
 from pyspark.pandas import DataFrame
 from abc import abstractmethod
@@ -10,22 +11,22 @@ class ETLTask(Task):
     """
     ETLTask is an abstract class provides standard methods for ETL processes.  Child classes must implement the abstract classes.
     """
-    def __init__(self, spark: SparkSession=None, init_conf: dict=None, source_datasource: DataSource=None, destination_datasource: DataSource=None):
+    def __init__(self, spark: SparkSession=None, init_conf: dict=None, source_datasource_type: DatasourceType=DatasourceType.DATABRICKS, destination_datasource_type: DatasourceType=DatasourceType.DATABRICKS):
       super(ETLTask, self).__init__(spark=spark, init_conf=init_conf)
-      self.source = self.__prepare_source_datasource(source_datasource)
-      self.destination = self.__prepare_destination_datasource(destination_datasource)
+      self.source = self.__prepare_source_datasource(source_datasource_type)
+      self.destination = self.__prepare_destination_datasource(destination_datasource_type)
 
-    def __prepare_source_datasource(self, source_datasource) -> DataSource:
-        if not source_datasource:
-            return DataSourceFactory.getDataSource('AGOL', params=self.conf, dbutils=self.dbutils, stage=self.stage)
+    def __prepare_source_datasource(self, source_datasource_type) -> Datasource:
+        if not source_datasource_type:
+            return DatasourceFactory.getDatasource(DatasourceType.DATABRICKS, params=self.conf, dbutils=self.dbutils, stage=self.stage)
         else:
-            return source_datasource
+            return DatasourceFactory.getDatasource(source_datasource_type, params=self.conf, dbutils=self.dbutils, stage=self.stage)
 
-    def __prepare_destination_datasource(self, destination_datasource) -> DataSource:
-        if not destination_datasource:
-            return DataSourceFactory.getDataSource('DB', params=self.conf, dbutils=self.dbutils, stage=self.stage)
+    def __prepare_destination_datasource(self, destination_datasource_type) -> Datasource:
+        if not destination_datasource_type:
+            return DatasourceFactory.getDatasource(DatasourceType.DATABRICKS, params=self.conf, dbutils=self.dbutils, stage=self.stage)
         else:
-            return destination_datasource
+            return DatasourceFactory.getDatasource(destination_datasource_type, params=self.conf, dbutils=self.dbutils, stage=self.stage)
 
     def extract(self, params: dict=None) -> DataFrame:
         """

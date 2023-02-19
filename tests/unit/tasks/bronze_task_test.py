@@ -1,8 +1,9 @@
 from cdii_data_pipelines.tasks.bronze_task import BronzeTask
-from cdii_data_pipelines.integrations.datasource import DataSource
-from pyspark.sql import SparkSession
-from pyspark.sql import DataFrame
-#from pytest_mock import mocker 
+from cdii_data_pipelines.integrations.datasource import Datasource
+from cdii_data_pipelines.integrations.datasource_type import DatasourceType
+from cdii_data_pipelines.integrations.db_datasource import DatabricksDatasource
+from cdii_data_pipelines.integrations.agol_datasource import AgolDatasource
+from pyspark.pandas import DataFrame
 import pandas as pd
 from datetime import datetime
 import pytz
@@ -10,19 +11,15 @@ from shapely import Point
 import logging
 import pytest
 
-
-class ConcreteDataSource():
-    def read(self, params: dict=None, spark: SparkSession=None) -> DataFrame:
-        return pd.DataFrame()
-
-    def write(self, dataFrame: DataFrame):
-        pass
+default_params = {
+    "agol_url": "https://chhsagency.maps.arcgis.com/home/"
+}
 
 class ConcreteBronzeTask(BronzeTask):
-    def __init__(self, spark: SparkSession=None, init_conf: dict=None, source_datasource: DataSource=None):
-      super(ConcreteBronzeTask, self).__init__(spark=spark, init_conf=init_conf, source_datasource=source_datasource)
+    def __init__(self):
+      super(ConcreteBronzeTask, self).__init__(init_conf=default_params)
 
-    def extract(self) -> DataFrame:
+    def extract(self, params: dict=None) -> DataFrame:
         return None
 
 def test_transform_requires_geometry_field_in_geo():
@@ -33,8 +30,7 @@ def test_transform_requires_geometry_field_in_geo():
     df['age']=[12, 13]
     df['geometry']=[Point(1.0, -1.0), Point(2.0, -2.0)]
     
-    source_datasource = ConcreteDataSource()
-    test_bronze_task = ConcreteBronzeTask(source_datasource=source_datasource)
+    test_bronze_task = ConcreteBronzeTask()
     
     with pytest.raises(KeyError):
         test_bronze_task.transform(dataFrame=df, params={})
@@ -46,8 +42,7 @@ def test_transform_not_require_geometry_field_when_not_geo():
     df['lastname']=['Squarepants', 'Star']
     df['age']=[12, 13]
 
-    source_datasource = ConcreteDataSource()
-    test_bronze_task = ConcreteBronzeTask(source_datasource=source_datasource)
+    test_bronze_task = ConcreteBronzeTask()
     
     try:
         test_bronze_task.transform(dataFrame=df, params={})
@@ -62,8 +57,7 @@ def test_transform_removes_SHAPE():
     df['age']=[12, 13]
     df['SHAPE']=[1, 2]
 
-    source_datasource = ConcreteDataSource()
-    test_bronze_task = ConcreteBronzeTask(source_datasource=source_datasource)
+    test_bronze_task = ConcreteBronzeTask()
     df = test_bronze_task.transform(dataFrame=df, params={})
 
     assert True, 'SHAPE' not in df.columns
@@ -75,8 +69,7 @@ def test_transform_adds_ade_submitted_date_to_today():
     df['lastname']=['Squarepants', 'Star']
     df['age']=[12, 13]
 
-    source_datasource = ConcreteDataSource()
-    test_bronze_task = ConcreteBronzeTask(source_datasource=source_datasource)
+    test_bronze_task = ConcreteBronzeTask()
     df = test_bronze_task.transform(dataFrame=df, params={})
     
     today = datetime.now(pytz.timezone("America/Los_Angeles")).date()
@@ -92,8 +85,7 @@ def test_transform_adds_non_standard_geometry():
     df['age']=[12, 13]
     df['geometry']=[Point(1.0, -1.0), Point(2.0, -2.0)]
 
-    source_datasource = ConcreteDataSource()
-    test_bronze_task = ConcreteBronzeTask(source_datasource=source_datasource)
+    test_bronze_task = ConcreteBronzeTask()
     df = test_bronze_task.transform(dataFrame=df, 
         params={
             "destination": {
@@ -111,8 +103,7 @@ def test_transform_removes_geometry_when_non_standard_geometry():
     df['age']=[12, 13]
     df['geometry']=[Point(1.0, -1.0), Point(2.0, -2.0)]
 
-    source_datasource = ConcreteDataSource()
-    test_bronze_task = ConcreteBronzeTask(source_datasource=source_datasource)
+    test_bronze_task = ConcreteBronzeTask()
     df = test_bronze_task.transform(dataFrame=df, 
         params={
             "destination": {
@@ -122,3 +113,10 @@ def test_transform_removes_geometry_when_non_standard_geometry():
     print(df.columns)
     assert True, 'geometry' not in df.columns
 
+def test_default_source_datasource_is_Agol():
+    concreteETLTask = ConcreteBronzeTask()
+    assert type(concreteETLTask.source) is AgolDatasource
+
+def test_default_destination_datasource_is_databricks():
+    concreteBronzeTask = ConcreteBronzeTask()
+    assert type(concreteBronzeTask.destination) is DatabricksDatasource

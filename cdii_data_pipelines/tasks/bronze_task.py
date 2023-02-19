@@ -1,5 +1,5 @@
 from cdii_data_pipelines.tasks.etl_task import ETLTask
-from cdii_data_pipelines.integrations.datasource import DataSource
+from cdii_data_pipelines.integrations.datasource_type import DatasourceType
 from pyspark.sql import SparkSession
 from pyspark.pandas import DataFrame
 from datetime import datetime
@@ -10,10 +10,11 @@ import os
 class BronzeTask(ETLTask):
     """
     """
-    def __init__(self, spark: SparkSession=None, init_conf: dict=None, source_datasource: DataSource=None, destination_datasource: DataSource=None):
-      super(BronzeTask, self).__init__(spark=spark, init_conf=init_conf, source_datasource=source_datasource, destination_datasource=destination_datasource)
+    def __init__(self, spark: SparkSession=None, init_conf: dict=None, source_datasource_type: DatasourceType=DatasourceType.AGOL, destination_datasource_type: DatasourceType=DatasourceType.DATABRICKS):
+      super(BronzeTask, self).__init__(spark=spark, init_conf=init_conf, source_datasource_type=source_datasource_type, destination_datasource_type=destination_datasource_type)
 
     def transform(self, dataFrame: DataFrame, params: dict=None) -> DataFrame:
+        print("888881")
         if 'SHAPE' in dataFrame.columns:
             dataFrame = dataFrame.drop(columns=['SHAPE'])
 
