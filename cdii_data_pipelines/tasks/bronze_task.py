@@ -14,7 +14,6 @@ class BronzeTask(ETLTask):
       super(BronzeTask, self).__init__(spark=spark, init_conf=init_conf, source_datasource_type=source_datasource_type, destination_datasource_type=destination_datasource_type)
 
     def transform(self, dataFrame: DataFrame, params: dict=None) -> DataFrame:
-        print("888881")
         if 'SHAPE' in dataFrame.columns:
             dataFrame = dataFrame.drop(columns=['SHAPE'])
 
