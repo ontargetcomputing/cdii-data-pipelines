@@ -14,6 +14,7 @@ PACKAGE_REQUIREMENTS = [
   "pytz==2022.7.1",
   "pyyaml==6.0",
   "shapely==2.0.1",
+  #$"Datetime==5.0"
   #"geoalchemy2==0.10.2",
   #"geopandas==0.10.2",
   #"sqlalchemy==1.4.31",
@@ -27,7 +28,7 @@ LOCAL_REQUIREMENTS = [
     "pyspark==3.3.1",
     "delta-spark==2.2.0",
     "PyArrow >= 1.0.0",
-    "pandas",
+    "pandas==1.2.4",
     # "scikit-learn",
     #"mlflow",
     #"databricks-connect==11.3.0b0"
