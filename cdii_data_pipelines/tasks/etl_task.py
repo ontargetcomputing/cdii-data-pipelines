@@ -1,12 +1,9 @@
 from cdii_data_pipelines.tasks.task import Task
 from cdii_data_pipelines.integrations.datasource_factory import DatasourceFactory
 from cdii_data_pipelines.integrations.datasource_type import DatasourceType
-from cdii_data_pipelines.integrations.datasource import Datasource
 from pyspark.sql import SparkSession
-from pyspark.pandas import DataFrame
 from array import array
 from abc import abstractmethod
-import os
 
 class ETLTask(Task):
     """
@@ -14,8 +11,8 @@ class ETLTask(Task):
     """
     def __init__(self, spark: SparkSession=None, init_conf: dict=None):
       super(ETLTask, self).__init__(spark=spark, init_conf=init_conf)
-      self.sources = self.__prepare_source_datasources(params=init_conf)
-      self.destinations = self.__prepare_destination_datasources(params=init_conf)
+      self.sources = self.__prepare_source_datasources(params=self.conf)
+      self.destinations = self.__prepare_destination_datasources(params=self.conf)
 
     def __prepare_source_datasources(self, params: dict=None) -> array:
         sources = []
@@ -37,22 +34,31 @@ class ETLTask(Task):
 
         return destinations
 
-    def extract(self, params: dict=None) -> DataFrame:
+    def extract(self, params: dict=None) -> array:
         """
         Extract method - used to pull data from a source
         :return:
         """
-        return self.source.read(params['source'], spark=self.spark) 
+        print(f'Extracting: ${self.sources}')
+        dataFrames = []
+        for index, source in enumerate(self.sources):
+            print(f'Reading from : ${params["source_datasources"][index]}')
+            dataFrames.append(source.read(params['source_datasources'][index], spark=self.spark) )
+        
+        return dataFrames
 
-    def load(self, dataFrame: DataFrame, params: dict=None):
+    def load(self, dataFrames: array, params: dict=None):
         """
         Load method - used to load the transformed source data into the final data store
         :return:
         """
-        self.destination.write(dataFrame=dataFrame, params=params['destination'], spark=self.spark) 
+        print(f'Loading: ${self.destinations}')
+        for index, destination in enumerate(self.destinations):
+            print(f'Writing to : ${params["destination_datasources"][index]}')
+            destination.write(dataFrames[index], params['destination_datasources'][index], spark=self.spark)
 
     @abstractmethod
-    def transform(self, dataFrame: DataFrame,  params: dict=None) -> DataFrame:
+    def transform(self, dataFrames: array,  params: dict=None) -> array:
         """
         Transform method - used to transform data received from source in preparation of loading
         :return:
@@ -64,7 +70,7 @@ class ETLTask(Task):
         Main method of the task.
         :return:
         """
-        dataFrame = self.extract(params=self.conf)
-        dataFrame = self.transform(dataFrame=dataFrame, params=self.conf)
-        self.load(dataFrame=dataFrame, params=self.conf)
+        dataFrames = self.extract(params=self.conf)
+        dataFrames = self.transform(dataFrames=dataFrames, params=self.conf)
+        self.load(dataFrames=dataFrames, params=self.conf)
 

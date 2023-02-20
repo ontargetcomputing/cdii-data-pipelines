@@ -6,7 +6,6 @@ from arcgis.features import FeatureLayer
 from arcgis.features import FeatureLayer
 import json
 import geopandas as gpd
-import pandas as pd
 
 class AgolDatasource(Datasource):
     """

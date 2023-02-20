@@ -13,5 +13,5 @@ class Datasource():
         pass 
 
     @abstractmethod
-    def write(self, dataFrame: DataFrame):
+    def write(self, dataFrame: DataFrame, params: dict=None, spark: SparkSession=None):
         pass 

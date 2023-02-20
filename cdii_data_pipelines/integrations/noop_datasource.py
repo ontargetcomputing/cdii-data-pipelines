@@ -1,6 +1,6 @@
 from cdii_data_pipelines.integrations.datasource import Datasource
 from pyspark.sql import SparkSession
-import pandas as pd
+import pyspark.pandas as pd
 from pyspark.pandas import DataFrame
 
 class NoopDatasource(Datasource):

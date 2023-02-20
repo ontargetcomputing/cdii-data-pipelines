@@ -16,13 +16,19 @@ class WildfireSilverTask(ETLTask):
 
 def entrypoint():  # pragma: no cover
     conf = {
-      "source": {
-        "table": "ahd_wildfires.bronze.california_fires_historical_points_good",
-      },
-      "destination": {
-        "table": "ahd_wildfires.silver.california_fires_points",
-      },
-      } if "true" == os.environ.get('LOCAL') else None
+      "source_datasources": [
+        {
+          "type": "agol",
+          "table": "ahd_wildfires.bronze.california_fires_historical_points_good",
+        }
+      ],
+      "destination_datasources": [
+        {
+          "type": "agol",
+          "table": "ahd_wildfires.silver.california_fires_points",
+        }
+      ]
+    } if "true" == os.environ.get('LOCAL') else None
     task = WildfireSilverTask(init_conf=conf)
     task.launch()
 
