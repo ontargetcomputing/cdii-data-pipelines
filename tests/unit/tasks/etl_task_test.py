@@ -12,10 +12,60 @@ class ConcreteETLTask(ETLTask):
     def transform(self, dataFrame: DataFrame,  params: dict=None) -> DataFrame:
       return None
 
-def test_default_source_datasource_is_databricks():
+def test_default_source_datasource_is_empty():
     concreteETLTask = ConcreteETLTask()
-    assert type(concreteETLTask.source) is DatabricksDatasource
+    assert len(concreteETLTask.sources) == 0
 
-def test_default_destination_datasource_is_databricks():
+def test_default_destination_datasource_is_empty():
     concreteETLTask = ConcreteETLTask()
-    assert type(concreteETLTask.destination) is DatabricksDatasource
+    assert len(concreteETLTask.destinations) == 0
+
+def test_source_datasource_list_of_1():
+    params = {
+        "source_datasources": [
+          {
+          "type": "noop",
+          }
+        ]
+    }
+    concreteETLTask = ConcreteETLTask(init_conf=params)
+    assert len(concreteETLTask.sources) == 1
+
+def test_destination_datasource_list_of_1():
+    params = {
+        "destination_datasources": [
+          {
+          "type": "noop",
+          }
+        ]
+    }
+    concreteETLTask = ConcreteETLTask(init_conf=params)
+    assert len(concreteETLTask.destinations) == 1
+
+def test_source_datasource_list_of_more_than_1():
+    params = {
+        "source_datasources": [
+          {
+          "type": "noop",
+          },
+          {
+          "type": "noop",
+          }
+        ]
+    }
+    concreteETLTask = ConcreteETLTask(init_conf=params)
+    assert len(concreteETLTask.sources) == 2
+
+def test_destination_datasource_list_of_more_than_1():
+    params = {
+        "destination_datasources": [
+          {
+          "type": "noop",
+          },
+          {
+          "type": "noop",
+          }
+        ]
+    }
+    concreteETLTask = ConcreteETLTask(init_conf=params)
+    assert len(concreteETLTask.destinations) == 2

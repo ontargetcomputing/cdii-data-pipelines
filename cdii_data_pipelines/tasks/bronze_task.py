@@ -10,8 +10,8 @@ import os
 class BronzeTask(ETLTask):
     """
     """
-    def __init__(self, spark: SparkSession=None, init_conf: dict=None, source_datasource_type: DatasourceType=DatasourceType.AGOL, destination_datasource_type: DatasourceType=DatasourceType.DATABRICKS):
-      super(BronzeTask, self).__init__(spark=spark, init_conf=init_conf, source_datasource_type=source_datasource_type, destination_datasource_type=destination_datasource_type)
+    def __init__(self, spark: SparkSession=None, init_conf: dict=None):
+      super(BronzeTask, self).__init__(spark=spark, init_conf=init_conf)
 
     def transform(self, dataFrame: DataFrame, params: dict=None) -> DataFrame:
         if 'SHAPE' in dataFrame.columns:

@@ -12,6 +12,6 @@ def test_databricks_returned_when_constructed():
 
 def test_agol_returned_when_constructed():
     params = {
-      "agol_url": "https://chhsagency.maps.arcgis.com/home/"
+      "url": "https://chhsagency.maps.arcgis.com/home/"
     }
     assert type(DatasourceFactory.getDatasource(type=DatasourceType.AGOL, params=params)) is AgolDatasource

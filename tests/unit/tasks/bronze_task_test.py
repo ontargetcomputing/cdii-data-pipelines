@@ -12,7 +12,16 @@ import logging
 import pytest
 
 default_params = {
-    "agol_url": "https://chhsagency.maps.arcgis.com/home/"
+    "source_datasources": [
+      {
+      "type": "noop",
+      }
+    ],
+    "destination_datasources": [
+      {
+      "type": "noop",
+      }
+    ]
 }
 
 class ConcreteBronzeTask(BronzeTask):
@@ -112,11 +121,3 @@ def test_transform_removes_geometry_when_non_standard_geometry():
         })
     print(df.columns)
     assert True, 'geometry' not in df.columns
-
-def test_default_source_datasource_is_Agol():
-    concreteETLTask = ConcreteBronzeTask()
-    assert type(concreteETLTask.source) is AgolDatasource
-
-def test_default_destination_datasource_is_databricks():
-    concreteBronzeTask = ConcreteBronzeTask()
-    assert type(concreteBronzeTask.destination) is DatabricksDatasource

@@ -4,6 +4,7 @@ from cdii_data_pipelines.integrations.datasource_type import DatasourceType
 from cdii_data_pipelines.integrations.datasource import Datasource
 from pyspark.sql import SparkSession
 from pyspark.pandas import DataFrame
+from array import array
 from abc import abstractmethod
 import os
 
@@ -11,22 +12,30 @@ class ETLTask(Task):
     """
     ETLTask is an abstract class provides standard methods for ETL processes.  Child classes must implement the abstract classes.
     """
-    def __init__(self, spark: SparkSession=None, init_conf: dict=None, source_datasource_type: DatasourceType=DatasourceType.DATABRICKS, destination_datasource_type: DatasourceType=DatasourceType.DATABRICKS):
+    def __init__(self, spark: SparkSession=None, init_conf: dict=None):
       super(ETLTask, self).__init__(spark=spark, init_conf=init_conf)
-      self.source = self.__prepare_source_datasource(source_datasource_type)
-      self.destination = self.__prepare_destination_datasource(destination_datasource_type)
+      self.sources = self.__prepare_source_datasources(params=init_conf)
+      self.destinations = self.__prepare_destination_datasources(params=init_conf)
 
-    def __prepare_source_datasource(self, source_datasource_type) -> Datasource:
-        if not source_datasource_type:
-            return DatasourceFactory.getDatasource(DatasourceType.DATABRICKS, params=self.conf, dbutils=self.dbutils, stage=self.stage)
-        else:
-            return DatasourceFactory.getDatasource(source_datasource_type, params=self.conf, dbutils=self.dbutils, stage=self.stage)
+    def __prepare_source_datasources(self, params: dict=None) -> array:
+        sources = []
+        
+        params = [] if ( params is None or 'source_datasources' not in params) else params['source_datasources']
+        for integration in params:
+            print(f'Configuring source:${integration}')
+            sources.append(DatasourceFactory.getDatasource(DatasourceType(integration['type']), params=integration, dbutils=self.dbutils, stage=self.stage))
 
-    def __prepare_destination_datasource(self, destination_datasource_type) -> Datasource:
-        if not destination_datasource_type:
-            return DatasourceFactory.getDatasource(DatasourceType.DATABRICKS, params=self.conf, dbutils=self.dbutils, stage=self.stage)
-        else:
-            return DatasourceFactory.getDatasource(destination_datasource_type, params=self.conf, dbutils=self.dbutils, stage=self.stage)
+        return sources
+
+    def __prepare_destination_datasources(self, params: dict=None) -> array:
+        destinations = []
+        print(params)
+        params = [] if ( params is None or 'destination_datasources' not in params) else params['destination_datasources']
+        for integration in params:
+            print(f'Configuring destination:${integration}')
+            destinations.append(DatasourceFactory.getDatasource(DatasourceType(integration['type']), params=integration, dbutils=self.dbutils, stage=self.stage))
+
+        return destinations
 
     def extract(self, params: dict=None) -> DataFrame:
         """
