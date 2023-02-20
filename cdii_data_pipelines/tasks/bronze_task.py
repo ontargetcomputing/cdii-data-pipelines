@@ -1,10 +1,10 @@
 from cdii_data_pipelines.tasks.etl_task import ETLTask
 from pyspark.sql import SparkSession
-from datetime import datetime
-import pytz
-from shapely import wkt
+from pyspark.sql.functions import lit
 import os
 from array import array
+from datetime import datetime
+import pytz
 
 class BronzeTask(ETLTask):
     """
@@ -15,18 +15,9 @@ class BronzeTask(ETLTask):
     def transform(self, dataFrames: array, params: dict=None) -> array:
         new_dataFrames = []
         for dataFrame in dataFrames:
-          if 'SHAPE' in dataFrame.columns:
-              dataFrame = dataFrame.drop(columns=['SHAPE'])
-
-          STANDARD_GEOMETRY_FIELD = 'geometry'
-          if STANDARD_GEOMETRY_FIELD in dataFrame.columns:
-              # destination_geomerty_field = params['destination']['geometry_field']
-              dataFrame[STANDARD_GEOMETRY_FIELD] = dataFrame[STANDARD_GEOMETRY_FIELD].apply(lambda x: wkt.dumps(x))
-              # if destination_geomerty_field != STANDARD_GEOMETRY_FIELD:
-              #     dataFrame.rename(columns={STANDARD_GEOMETRY_FIELD: destination_geomerty_field}, inplace=True)
-
-          dataFrame["ade_date_submitted"] = datetime.now(pytz.timezone("America/Los_Angeles")).date()
+          dataFrame = dataFrame.withColumn("ade_date_submitted", lit(datetime.now(pytz.timezone("America/Los_Angeles")).date()))
           new_dataFrames.append(dataFrame)
+          print(dataFrame.head())
 
         return new_dataFrames
 

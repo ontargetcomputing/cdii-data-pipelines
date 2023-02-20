@@ -38,12 +38,12 @@ environments:
           existing_cluster_name: "Richard's Cluster"
           spark_python_task:
             python_file: "file://cdii_data_pipelines/tasks/bronze_task.py"
-            parameters: [ "--conf-file", "file:fuse://conf/tasks/hazard/wildfire/points_bronze_task.ci.yml" ]
+            parameters: [ "--conf-file", "file:fuse://conf/tasks/hazard/wildfire/bronze_points_task.ci.yml" ]
         - task_key: "perims_bronze"
           existing_cluster_name: "Richard's Cluster"
           spark_python_task:
             python_file: "file://cdii_data_pipelines/tasks/bronze_task.py"
-            parameters: [ "--conf-file", "file:fuse://conf/tasks/hazard/wildfire/perims_bronze_task.ci.yml" ]
+            parameters: [ "--conf-file", "file:fuse://conf/tasks/hazard/wildfire/bronze_perims_task.ci.yml" ]
         - task_key: "silver"
           existing_cluster_name: "Richard's Cluster"
           depends_on: 

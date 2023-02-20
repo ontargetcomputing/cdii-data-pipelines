@@ -1,4 +1,4 @@
-from pyspark.pandas import DataFrame
+from pyspark.sql import DataFrame
 from pyspark.sql import SparkSession
 from abc import abstractmethod
 

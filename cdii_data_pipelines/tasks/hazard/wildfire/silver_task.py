@@ -12,7 +12,7 @@ class WildfireSilverTask(ETLTask):
     def transform(self, dataFrames: array, params: dict=None) -> array:
         print("Transforming")
         df = dataFrames[0]
-        print(len(df))
+        print(df.count())
         return dataFrames
 
 

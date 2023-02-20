@@ -1,0 +1,8 @@
+source_datasources:
+  - type: agol
+    dataset_id: d957997ccee7408287a963600a77f61f
+    layer: 1
+    url: https://chhsagency.maps.arcgis.com/home/
+destination_datasources:
+  - type: databricks
+    table: ahd_wildfires.bronze.california_fires_historical_perims_good

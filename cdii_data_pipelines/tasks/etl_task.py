@@ -47,7 +47,6 @@ class ETLTask(Task):
         for index, source in enumerate(self.sources):
             print(f'Reading from : {params["source_datasources"][index]}')
             df = source.read(params['source_datasources'][index], spark=self.spark)
-            
             print(df.head())
             dataFrames.append(df)
 
@@ -79,7 +78,16 @@ class ETLTask(Task):
         Main method of the task.
         :return:
         """
+        print('********************************************')
+        print('*************   Extracting     *************')
+        print('********************************************')
         dataFrames = self.extract(params=self.conf)
+        print('********************************************')
+        print('**********   Transforming     **************')
+        print('********************************************')
         dataFrames = self.transform(dataFrames=dataFrames, params=self.conf)
+        print('********************************************')
+        print('*************   Loading   ******************')
+        print('********************************************')
         self.load(dataFrames=dataFrames, params=self.conf)
 
