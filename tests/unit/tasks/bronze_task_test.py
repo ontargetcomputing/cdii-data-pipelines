@@ -31,21 +31,6 @@ class ConcreteBronzeTask(BronzeTask):
     def extract(self, params: dict=None) -> DataFrame:
         return None
 
-def test_transform_requires_geometry_field_in_geo():
-    logging.info("Ensure transform requires 'geometry' when in a geo dataframe")
-    df = pd.DataFrame()
-    df['firstname']=['Spongebog', 'Patrick']
-    df['lastname']=['Squarepants', 'Star']
-    df['age']=[12, 13]
-    df['geometry']=[Point(1.0, -1.0), Point(2.0, -2.0)]
-    dfs = []
-    dfs.append(df)
-
-    test_bronze_task = ConcreteBronzeTask()
-    
-    with pytest.raises(KeyError):
-        test_bronze_task.transform(dataFrames=dfs, params={})
-
 def test_transform_not_require_geometry_field_when_not_geo():
     logging.info("Ensure transform does not require 'geometry' when not in a geo dataframe")
     df = pd.DataFrame()

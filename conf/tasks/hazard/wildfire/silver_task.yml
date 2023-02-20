@@ -1,5 +1,0 @@
-source:
-  table: ahd_wildfires.bronze.california_fires_historical_points_good
-destination:
-  table: ahd_wildfires.bronze.california_fires_historical_points_good
-  geometry_field: geom

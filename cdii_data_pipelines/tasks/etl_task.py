@@ -3,6 +3,7 @@ from cdii_data_pipelines.integrations.datasource_factory import DatasourceFactor
 from cdii_data_pipelines.integrations.datasource_type import DatasourceType
 from pyspark.sql import SparkSession
 from array import array
+import pandas as pd
 from abc import abstractmethod
 
 class ETLTask(Task):
@@ -39,11 +40,17 @@ class ETLTask(Task):
         Extract method - used to pull data from a source
         :return:
         """
+        pd.set_option('expand_frame_repr', False)
+        pd.set_option('display.max_rows', False)
         print(f'Extracting: ${self.sources}')
         dataFrames = []
         for index, source in enumerate(self.sources):
-            print(f'Reading from : ${params["source_datasources"][index]}')
-            dataFrames.append(source.read(params['source_datasources'][index], spark=self.spark) )
+            print(f'Reading from : {params["source_datasources"][index]}')
+            df = source.read(params['source_datasources'][index], spark=self.spark)
+            
+            print(df.head())
+            dataFrames.append(df)
+
         
         return dataFrames
 
@@ -55,6 +62,8 @@ class ETLTask(Task):
         print(f'Loading: ${self.destinations}')
         for index, destination in enumerate(self.destinations):
             print(f'Writing to : ${params["destination_datasources"][index]}')
+            df = dataFrames[index]
+            print(df.head())
             destination.write(dataFrames[index], params['destination_datasources'][index], spark=self.spark)
 
     @abstractmethod

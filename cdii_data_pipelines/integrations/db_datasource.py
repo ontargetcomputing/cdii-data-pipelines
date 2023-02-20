@@ -11,13 +11,16 @@ class DatabricksDatasource(Datasource):
         pass
 
     def read(self, params: dict=None, spark: SparkSession=None) -> DataFrame:
-        raise NotImplementedError
-        # if params is None:
-        #   raise TypeError("params:NoneType not allowed, params:dict exptected")
-
+        print(f'Reading from : {params}')
         
+        dataframe = spark.read.table(params['table'])
+        pandas_df = dataframe.to_pandas_on_spark()
+        
+        print(f'Read {len(pandas_df)} records')
+        return pandas_df
+
     def write(self, dataFrame: DataFrame, params: dict=None, spark: SparkSession=None):
-        print("Writing dataset")
+        print(f'Writing dataset with {len(dataFrame)} records')
         table_name = params['table']
         spark_dataFrame = spark.createDataFrame(pd.DataFrame(dataFrame))
         spark_dataFrame.write.mode("overwrite").format("delta").option("mergeSchema", "true").saveAsTable(table_name)
