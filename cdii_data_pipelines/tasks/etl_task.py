@@ -42,7 +42,6 @@ class ETLTask(Task):
         """
         pd.set_option('expand_frame_repr', False)
         pd.set_option('display.max_rows', False)
-        print(f'Extracting: ${self.sources}')
         dataFrames = []
         for index, source in enumerate(self.sources):
             print(f'Reading from : {params["source_datasources"][index]}')

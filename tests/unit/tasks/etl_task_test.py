@@ -1,6 +1,4 @@
 from cdii_data_pipelines.tasks.etl_task import ETLTask
-from cdii_data_pipelines.integrations.datasource import Datasource
-from cdii_data_pipelines.integrations.db_datasource import DatabricksDatasource
 from pyspark.sql import SparkSession
 from pyspark.pandas import DataFrame
 

@@ -5,4 +5,3 @@ source_datasources:
 destination_datasources:
   - type: databricks
     table: ahd_wildfires.silver.california_fires_historical_points_good
-

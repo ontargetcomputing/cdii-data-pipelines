@@ -9,7 +9,7 @@ from setuptools import find_packages, setup
 from cdii_data_pipelines import __version__
 
 PACKAGE_REQUIREMENTS = [
-  "databricks-mosaic==0.3.7",
+  #"databricks-mosaic==0.3.7",
   "arcgis==1.9.1",
   "pytz==2022.7.1",
   "pyyaml==6.0",

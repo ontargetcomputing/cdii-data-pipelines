@@ -1,15 +1,10 @@
 from cdii_data_pipelines.tasks.bronze_task import BronzeTask
-from cdii_data_pipelines.integrations.datasource import Datasource
-from cdii_data_pipelines.integrations.datasource_type import DatasourceType
-from cdii_data_pipelines.integrations.db_datasource import DatabricksDatasource
-from cdii_data_pipelines.integrations.agol_datasource import AgolDatasource
 from pyspark.pandas import DataFrame
 import pandas as pd
 from datetime import datetime
 import pytz
 from shapely import Point
 import logging
-import pytest
 
 default_params = {
     "source_datasources": [
