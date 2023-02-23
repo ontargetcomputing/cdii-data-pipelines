@@ -1,4 +1,4 @@
-# ADE RECURRING ETL
+# CDII Data Pipelines
 
 This Repository contains scripts that automate data pipelines from the Agency Data Exchange (ADE) to the All-Hazards Dashboard (AHD). Data is pulled from various sources to the Agency Data Exchange, and subsequently updates AHD datasets for use in the dashbaord as soon as data changes.
 
