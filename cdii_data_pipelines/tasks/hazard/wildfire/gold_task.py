@@ -1,9 +1,10 @@
 from cdii_data_pipelines.tasks.etl_task import ETLTask
+from cdii_data_pipelines.pandas.pandas_helper import PandasHelper
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import split, explode, regexp_replace
 import os
 from array import array
+import geopandas as gpd
 
 class WildfireGoldTask(ETLTask):
 
@@ -12,15 +13,20 @@ class WildfireGoldTask(ETLTask):
  
     def transform(self, dataFrames: array, params: dict=None) -> array:
         print("Transforming")
-        dataFrame = dataFrames[0]
-        dataFrame = WildfireGoldTask._filter_to_california(dataFrame)
+        points_pyspark_pandas = dataFrames[0]
+        ca_pyspark_pandas = dataFrames[1]
 
-        dataFrames[0] = dataFrame
+        points_gpd = PandasHelper.pysparksql_to_geopandas(dataFrames[0])
+        ca_gpd = PandasHelper.pysparksql_to_geopandas(dataFrames[1])
+        ca_identified_points = WildfireGoldTask._filter_to_california(data=points_gpd, california=ca_gpd)
+
         return dataFrames
 
     @staticmethod 
-    def _filter_to_california(dataFrame: DataFrame=None) -> DataFrame:
-        return dataFrame
+    def _filter_to_california(data: gpd.GeoDataFrame=None, california: gpd.GeoDataFrame=None) -> DataFrame:
+        joined = gpd.sjoin(data, california, how="left", predicate="intersects")
+        joined.drop(columns=['index', 'index_right'], inplace=True)
+        return joined
 
     @staticmethod 
     def _merge_datasets(dataFrames: array=None) -> array:
@@ -40,7 +46,11 @@ def entrypoint():  # pragma: no cover
         {
           "type": "databricks",
           "table": "ahd_wildfires.silver.california_fires_historical_points_good",
-        }
+        },
+        {
+          "type": "databricks",
+          "table": "ahd_wildfires.bronze.california",
+        }        
       ],
       "destination_datasources": [
         {
