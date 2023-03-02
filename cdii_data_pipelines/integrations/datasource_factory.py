@@ -14,7 +14,9 @@ class DatasourceFactory:
         elif type == DatasourceType.DATABRICKS:
             return DatasourceFactory.getDatabricksDatasource(params)
         elif type == DatasourceType.NOOP:
-            return DatasourceFactory.getNoopDatasource(params)      
+            return DatasourceFactory.getNoopDatasource(params)
+        elif type == DatasourceType.S3:
+            return DatasourceFactory.getS3DataSource(params, dbutils=dbutils)              
         else:
             raise ValueError(type)
     
@@ -41,3 +43,21 @@ class DatasourceFactory:
     @staticmethod
     def getNoopDatasource(params: dict=None, dbutils=None, stage: str='DEV'):
         return NoopDatasource()
+    
+    @staticmethod
+    def getS3DataSource(params: dict=None, dbutils=None, stage: str='DEV') -> AgolDatasource:
+          account_number = params['account_number']
+          
+          if dbutils is None or os.environ.get('LOCAL') == 'true':
+              agol_user = os.environ.get(f'AGOL_USERNAME_{stage}')
+              agol_password = os.environ.get(f'AGOL_PASSWORD_{stage}')
+          else:
+              secret_key_id = dbutils.secrets.get("SECRET_KEYS", f'AWS_SECRET_KEY_{account_number}')
+              agol_password = dbutils.secrets.get("SECRET_KEYS", f'AWS_SECRET_ACCESS_KEY_{account_number}')
+          
+          url = params['url']
+          return S3DataSource( params={
+            'url': url,
+            'username': agol_user,
+            'password': agol_password
+          })

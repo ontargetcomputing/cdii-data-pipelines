@@ -1,0 +1,7 @@
+source_datasources:
+  - type: s3
+    bucket_name: /emsa_bucket/abc/myfile.cvs 
+    account_number: 34394839439
+destination_datasources:
+  - type: databricks
+    table: ahd_wildfires.bronze.california_fires_historical_points_good
