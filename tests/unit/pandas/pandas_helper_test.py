@@ -20,9 +20,13 @@ def test_pysparksql_to_geopandas_returns_correct_type():
         gdf = gdf.drop(columns=['SHAPE'])
 
     GEOMETRY_FIELD = 'geometry'
-    gdf[GEOMETRY_FIELD] = gdf[GEOMETRY_FIELD].apply(lambda x: wkt.dumps(x))    
+    gdf[GEOMETRY_FIELD] = gdf[GEOMETRY_FIELD].apply(lambda x: wkt.dumps(x))
     
     df = spark.createDataFrame(gdf)
     new_df = PandasHelper.pysparksql_to_geopandas(df)
 
     assert type(new_df) is gpd.GeoDataFrame
+
+def test_geopandas_to_pysparksql_requires_correct_type():
+    with pytest.raises(ValueError):
+        PandasHelper.geopandas_to_pysparksql(pd.DataFrame())

@@ -1,5 +1,5 @@
 from cdii_data_pipelines.tasks.etl_task import ETLTask
-from cdii_data_pipelines.pandas.pandas_helper import PandasHelper
+
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 import os
@@ -13,20 +13,8 @@ class WildfireGoldTask(ETLTask):
  
     def transform(self, dataFrames: array, params: dict=None) -> array:
         print("Transforming")
-        points_pyspark_pandas = dataFrames[0]
-        ca_pyspark_pandas = dataFrames[1]
-
-        points_gpd = PandasHelper.pysparksql_to_geopandas(dataFrames[0])
-        ca_gpd = PandasHelper.pysparksql_to_geopandas(dataFrames[1])
-        ca_identified_points = WildfireGoldTask._filter_to_california(data=points_gpd, california=ca_gpd)
 
         return dataFrames
-
-    @staticmethod 
-    def _filter_to_california(data: gpd.GeoDataFrame=None, california: gpd.GeoDataFrame=None) -> DataFrame:
-        joined = gpd.sjoin(data, california, how="left", predicate="intersects")
-        joined.drop(columns=['index', 'index_right'], inplace=True)
-        return joined
 
     @staticmethod 
     def _merge_datasets(dataFrames: array=None) -> array:
@@ -64,3 +52,12 @@ def entrypoint():  # pragma: no cover
 
 if __name__ == '__main__':
     entrypoint()
+
+
+
+# fire_points_merged = fire_points_to_merge.merge(
+#     fire_perim[PERIM_COLS], how="left", left_on="IrwinID", right_on="IRWINID"
+# )
+# fire_perim_merged = fire_perim.merge(
+#     fire_points_to_merge[PTS_COLS], how="right", left_on="IRWINID", right_on="IrwinID"
+# )    

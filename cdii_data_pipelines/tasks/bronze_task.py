@@ -17,7 +17,7 @@ class BronzeTask(ETLTask):
         for dataFrame in dataFrames:
           dataFrame = dataFrame.withColumn("ade_date_submitted", lit(datetime.now(pytz.timezone("America/Los_Angeles")).date()))
           new_dataFrames.append(dataFrame)
-          print(dataFrame.head())
+          # print(dataFrame.head())
 
         return new_dataFrames
 
