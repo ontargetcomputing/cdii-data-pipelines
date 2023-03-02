@@ -15,5 +15,25 @@ class DatabricksDatasource(Datasource):
 
     def write(self, dataFrame: DataFrame, params: dict=None, spark: SparkSession=None):
         table_name = params['table']
-        dataFrame.write.mode("overwrite").format("delta").option("mergeSchema", "true").saveAsTable(table_name)
+
+        if dataFrame.count() > 0:
+          DATA_TYPES = 'data_types'
+          if DATA_TYPES in params.keys():
+              data_types = params[DATA_TYPES]
+              for data_type in data_types:
+                  column = data_type['column']
+                  type = data_type['type']
+                  print(f'Casting {column} to {type}')
+                  dataFrame = dataFrame.withColumn(column, dataFrame[column].cast(type))
+          else:
+              print(f'No datatypes to cast')          
+          dataFrame.write.mode("overwrite").format("delta").option("mergeSchema", "true").saveAsTable(table_name)
+        else:
+          truncate_on_empty = False
+          TRUNCATE_ON_EMPTY = 'truncate_on_empty'
+          if TRUNCATE_ON_EMPTY in params.keys():
+              truncate_on_empty = params[TRUNCATE_ON_EMPTY]
+
+          if truncate_on_empty is True:
+              dataFrame.truncate()
 
