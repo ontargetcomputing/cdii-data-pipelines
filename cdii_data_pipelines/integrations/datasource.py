@@ -9,13 +9,13 @@ class Datasource():
         pass
 
     @abstractmethod
-    def read(self, spark: SparkSession=None) -> DataFrame:
+    def read(self) -> DataFrame:
         pass 
 
     @abstractmethod
-    def write(self, dataFrame: DataFrame, spark: SparkSession=None):
+    def write(self, dataFrame: DataFrame):
         pass 
 
     @abstractmethod
-    def truncate(self, params: dict=None, spark: SparkSession=None):
+    def truncate(self):
         pass 

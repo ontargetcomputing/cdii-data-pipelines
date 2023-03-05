@@ -12,15 +12,17 @@ from shapely import wkt
 class AgolDatasource(Datasource):
     """
     """
-    def __init__(self, params: dict=None ):
+    def __init__(self, params: dict=None, spark: SparkSession=None ):
         self.gis = GIS(params['url'], params['username'], params['password'])
+        self.params = params
+        self.spark = spark
 
-    def read(self, params: dict=None, spark: SparkSession=None) -> DataFrame:
-        if params is None:
+    def read(self) -> DataFrame:
+        if self.params is None:
           raise TypeError("params:NoneType not allowed, params:dict exptected")
         
-        datasetId = params['dataset_id']
-        layer = params['layer']
+        datasetId = self.params['dataset_id']
+        layer = self.params['layer']
 
         print(f'loadFeatureLayer { { "source": datasetId, "layer": layer}}')
         dataLayer = self.gis.content.get(datasetId)
@@ -35,10 +37,10 @@ class AgolDatasource(Datasource):
           geom = transformed["geometry"]
           gdf: gpd.GeoDataFrame = gpd.GeoDataFrame(gdf, crs=f'EPSG:4326', geometry=geom)
 
-        return PandasHelper.geopandas_to_pysparksql(gpd_df=gdf, spark=spark)
+        return PandasHelper.geopandas_to_pysparksql(gpd_df=gdf, spark=self.spark)
         
-    def write(self, dataFrame: DataFrame, params: dict=None, spark: SparkSession=None):
+    def write(self, dataFrame: DataFrame):
         pass 
 
-    def truncate(self, params: dict=None, spark: SparkSession=None):
+    def truncate(self):
         pass

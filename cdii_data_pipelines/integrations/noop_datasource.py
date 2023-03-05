@@ -7,14 +7,15 @@ from pyspark.sql.types import StructType
 class NoopDatasource(Datasource):
     """
     """
-    def __init__(self, params: dict=None ):
+    def __init__(self, spark: SparkSession=None):
+        self.spark = spark
         pass
 
-    def read(self, params: dict=None, spark: SparkSession=None) -> DataFrame:
-        return spark.createDataFrame([], StructType([]))
+    def read(self) -> DataFrame:
+        return self.spark.createDataFrame([], StructType([]))
 
-    def write(self, dataFrame: DataFrame, params: dict=None, spark: SparkSession=None):
+    def write(self, dataFrame: DataFrame):
         print("Dataset successfully written")
 
-    def truncate(self, params: dict=None, spark: SparkSession=None):
+    def truncate(self):
         print("Truncating") 
