@@ -5,6 +5,7 @@ import geopandas as gpd
 import pytest
 from shapely import wkt
 from shapely import Point
+from pyspark import pyspark
 
 spark = SparkSession.builder.getOrCreate()
 
@@ -30,3 +31,13 @@ def test_pysparksql_to_geopandas_returns_correct_type():
 def test_geopandas_to_pysparksql_requires_correct_type():
     with pytest.raises(ValueError):
         PandasHelper.geopandas_to_pysparksql(pd.DataFrame())
+
+def test_emtpy_spark_sql_dataframe_is_correct_type():
+    df = PandasHelper.empty_spark_sql_dataframe(spark=spark)
+
+    assert type(df) is pyspark.sql.DataFrame
+
+def test_emtpy_spark_sql_dataframe_returns_empty():
+    df = PandasHelper.empty_spark_sql_dataframe(spark=spark)
+
+    assert df.count() == 0

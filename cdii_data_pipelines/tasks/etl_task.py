@@ -61,8 +61,16 @@ class ETLTask(Task):
         for index, destination in enumerate(self.destinations):
             print(f'Writing to : ${params["destination_datasources"][index]}')
             df = dataFrames[index]
-            print(df.head())
-            destination.write(dataFrames[index], params['destination_datasources'][index], spark=self.spark)
+            destination_params = params['destination_datasources'][index]
+            if df.count() > 0:
+                destination.write(dataFrames[index], destination_params, spark=self.spark)
+            else:
+                truncate_on_emtpy = destination_params["truncate_on_emtpy"]
+                if truncate_on_emtpy is True:
+                    print('Truncating on empty')
+                    destination.truncate(spark=self.spark)
+                else:
+                    print('Dataframe empty - nothing to write')
 
     @abstractmethod
     def transform(self, dataFrames: array,  params: dict=None) -> array:
@@ -86,7 +94,7 @@ class ETLTask(Task):
         print('********************************************')
         dataFrames = self.transform(dataFrames=dataFrames, params=self.conf)
         print('********************************************')
-        print('*************   Loading   ******************')
+        print('*************   Loading *******FKLDFJDKJFKDFJKDJFDKFJkD  ******************')
         print('********************************************')
         self.load(dataFrames=dataFrames, params=self.conf)
 

@@ -45,9 +45,11 @@ class WildfireSilverTask(ETLTask):
 
     @staticmethod 
     def _unnest(dataFrame: DataFrame=None) -> DataFrame:
+        print(f'Unnest: started with {dataFrame.count()} records')
         cooked_df = dataFrame.withColumn(IRWINID, explode(split(IRWINID,',')))
         cooked_df = cooked_df.withColumn(IRWINID, regexp_replace(IRWINID, '\{|\}', ''))
-        return cooked_df       
+        print(f'Unnest: ended with {cooked_df.count()} records')
+        return cooked_df
 
     @staticmethod 
     def _drop_duplicates(dataFrame: DataFrame=None) -> DataFrame:

@@ -16,3 +16,5 @@ class NoopDatasource(Datasource):
     def write(self, dataFrame: DataFrame, params: dict=None, spark: SparkSession=None):
         print("Dataset successfully written")
 
+    def truncate(self, params: dict=None, spark: SparkSession=None):
+        print("Truncating") 

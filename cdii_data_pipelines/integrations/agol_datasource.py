@@ -39,3 +39,6 @@ class AgolDatasource(Datasource):
         
     def write(self, dataFrame: DataFrame, params: dict=None, spark: SparkSession=None):
         pass 
+
+    def truncate(self, params: dict=None, spark: SparkSession=None):
+        pass
