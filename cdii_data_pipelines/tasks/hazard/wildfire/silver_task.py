@@ -1,18 +1,16 @@
 from cdii_data_pipelines.tasks.etl_task import ETLTask
 from cdii_data_pipelines.pandas.pandas_helper import PandasHelper
+from cdii_data_pipelines.pandas.geopandas_wrapper import GeoPandasWrapper
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import split, explode, regexp_replace
 import os
 from array import array
-import geopandas as gpd
-import pandas as pd
 
 IRWINID = "IRWINID"
 BAD_IRWINID = "IrwinId"
 
 class WildfireSilverTask(ETLTask):
-
     def __init__(self, spark: SparkSession=None, init_conf: dict=None):
       super(WildfireSilverTask, self).__init__(spark=spark, init_conf=init_conf)
  
@@ -34,7 +32,7 @@ class WildfireSilverTask(ETLTask):
         print(f'After _filter_to_california had {len(ca_identified_data)} rows')
         
         final_data = WildfireSilverTask._add_county_info(data=ca_identified_data, county=county_gpd)
-        final_data = WildfireSilverTask._condense(data=final_data)
+        #final_data = WildfireSilverTask._condense(data=final_data)
         #convert back to sql dataframe
         dataFrames[0] = PandasHelper.geopandas_to_pysparksql(final_data, spark=self.spark)
         return dataFrames
@@ -57,34 +55,34 @@ class WildfireSilverTask(ETLTask):
         return dataFrame.drop('OBJECTID').dropDuplicates()
     
     @staticmethod 
-    def _filter_to_california(data: gpd.GeoDataFrame=None, california: gpd.GeoDataFrame=None) -> DataFrame:
-        joined = gpd.sjoin(data, california, how="inner", predicate="intersects")
+    def _filter_to_california(data, california) -> DataFrame:
+        joined = GeoPandasWrapper.sjoin(data, california, how="inner", predicate="intersects")
         joined.drop(columns=['index', 'index_right', 'NAME'], inplace=True)
         return joined
 
     @staticmethod 
-    def _add_county_info(data: gpd.GeoDataFrame=None, county: gpd.GeoDataFrame=None) -> DataFrame:
-        joined_data_merged_with_counties = gpd.sjoin(data, county, how="left", predicate="intersects")
+    def _add_county_info(data, county) -> DataFrame:
+        joined_data_merged_with_counties = GeoPandasWrapper.sjoin(data, county, how="left", predicate="intersects")
         joined_data_merged_with_counties.rename({"NAME": "county", "caloes_region": "oes_region"}, axis=1, inplace=True)
         joined_data_merged_with_counties.drop(columns=['index_right'], inplace=True)        
 
         return joined_data_merged_with_counties
 
-    @staticmethod 
-    def _condense(data: gpd.GeoDataFrame=None) -> DataFrame:
-        irwin_id = "IRWINID"
+    # # @staticmethod 
+    # # def _condense(data: gpd.GeoDataFrame=None) -> DataFrame:
+    # #     irwin_id = "IRWINID"
 
-        condensed = data.groupby(irwin_id)["county"].apply(
-            lambda x: ", ".join(list(set(x)))
-        )
-        condensed = pd.DataFrame(condensed)
-        condensed["oes_region"] = data.groupby(irwin_id)["oes_region"].apply(
-            lambda x: ", ".join(list(set(x)))
-        )
+    # #     condensed = data.groupby(irwin_id)["county"].apply(
+    # #         lambda x: ", ".join(list(set(x)))
+    # #     )
+    # #     condensed = pd.DataFrame(condensed)
+    # #     condensed["oes_region"] = data.groupby(irwin_id)["oes_region"].apply(
+    # #         lambda x: ", ".join(list(set(x)))
+    # #     )
 
-        data = data.merge(condensed, on=irwin_id)
+    # #     data = data.merge(condensed, on=irwin_id)
 
-        return data
+    # #     return data
 
 
 

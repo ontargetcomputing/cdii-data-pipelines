@@ -3,7 +3,6 @@ from cdii_data_pipelines.integrations.datasource_factory import DatasourceFactor
 from cdii_data_pipelines.integrations.datasource_type import DatasourceType
 from pyspark.sql import SparkSession
 from array import array
-import pandas as pd
 from abc import abstractmethod
 
 class ETLTask(Task):
@@ -40,8 +39,8 @@ class ETLTask(Task):
         Extract method - used to pull data from a source
         :return:
         """
-        pd.set_option('expand_frame_repr', False)
-        pd.set_option('display.max_rows', False)
+        # pd.set_option('expand_frame_repr', False)
+        # pd.set_option('display.max_rows', False)
         dataFrames = []
         for index, source in enumerate(self.sources):
             print(f'Reading from : {params["source_datasources"][index]}')
@@ -66,10 +65,11 @@ class ETLTask(Task):
             if df.count() > 0:
                 destination.write(dataFrames[index])
             else:
-                truncate_on_emtpy = destination_params["truncate_on_emtpy"]
+                truncate_on_emtpy = destination_params.get("truncate_on_emtpy", True)
                 if truncate_on_emtpy is True:
-                    print('Truncating on empty')
-                    destination.truncate(spark=self.spark)
+                    table = destination_params['table']
+                    print(f'Truncating {table} on empty')
+                    self.spark.sql(f'truncate table {table}')
                 else:
                     print('Dataframe empty - nothing to write')
 

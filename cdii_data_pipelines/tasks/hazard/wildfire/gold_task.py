@@ -1,11 +1,12 @@
 from cdii_data_pipelines.tasks.etl_task import ETLTask
-
+from cdii_data_pipelines.pandas.geopandas_wrapper import GeoPandasWrapper
+from cdii_data_pipelines.pandas.pandas_wrapper import PandasWrapper
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 import os
 from array import array
-import pandas as pd
-import geopandas as gpd
+# import pandas as pd
+# import geopandas as gpd
 from shapely import wkt
 import geopy
 import geopy.distance
@@ -54,11 +55,11 @@ class WildfireGoldTask(ETLTask):
 
         geo_data_0 = dataFrames[0].toPandas()
         geo_data_0[geometry_col] = geo_data_0[geometry_col].apply(wkt.loads)
-        geo_data_0 = gpd.GeoDataFrame(geo_data_0, geometry=geometry_col)
+        geo_data_0 = GeoPandasWrapper.GeoDataFrame(geo_data_0, geometry=geometry_col)
 
         geo_data_1 = dataFrames[1].toPandas()
         geo_data_1[geometry_col] = geo_data_1[geometry_col].apply(wkt.loads)
-        geo_data_1 = gpd.GeoDataFrame(geo_data_1, geometry=geometry_col)
+        geo_data_1 = GeoPandasWrapper.GeoDataFrame(geo_data_1, geometry=geometry_col)
 
         cols_to_mergs = params['merge_columns']
         merged = geo_data_0.merge(geo_data_1[cols_to_mergs], how="left", left_on=params['join_column'], right_on=params['join_column'])
@@ -82,7 +83,7 @@ class WildfireGoldTask(ETLTask):
         )
 
     @staticmethod 
-    def _create_poly(dataFrame: pd.DataFrame) -> DataFrame:
+    def _create_poly(dataFrame) -> DataFrame:
         dataFrame["geometry"] = dataFrame.apply(
             WildfireGoldTask._handle_row, axis=1
         )
@@ -90,9 +91,9 @@ class WildfireGoldTask(ETLTask):
         return dataFrame
 
     @staticmethod 
-    def _convert_NaN_to_None(dataFrame: pd.DataFrame) -> array:
+    def _convert_NaN_to_None(dataFrame) -> array:
           return dataFrame.where(
-              pd.notnull(dataFrame), None
+              PandasWrapper.notnull(dataFrame), None
           )
 
 def entrypoint():  # pragma: no cover
