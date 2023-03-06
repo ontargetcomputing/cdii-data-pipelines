@@ -20,7 +20,10 @@ source_datasources:
     table: ahd_wildfires.silver.california_fires_historical_points_good
   - type: databricks
     table: ahd_wildfires.gold.california_fires_perims_good
-
+destination_datasources:
+  - type: databricks
+    table: ahd_wildfires.gold.california_fires_perims_good
+    truncate_on_empty: true
 
 
 
