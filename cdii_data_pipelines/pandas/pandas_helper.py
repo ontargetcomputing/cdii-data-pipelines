@@ -32,7 +32,7 @@ class PandasHelper():
 
             return spark.createDataFrame(gpd_df)
         else:
-            return spark.createDataFrame()
+            return PandasHelper.empty_spark_sql_dataframe(spark)
 
     @staticmethod
     def empty_spark_sql_dataframe(spark: SparkSession) -> pyspark.sql.DataFrame :

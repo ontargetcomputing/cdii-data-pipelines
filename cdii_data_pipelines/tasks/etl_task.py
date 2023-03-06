@@ -21,7 +21,7 @@ class ETLTask(Task):
         params = [] if ( params is None or 'source_datasources' not in params) else params['source_datasources']
         for integration in params:
             print(f'Configuring source:${integration}')
-            sources.append(DatasourceFactory.getDatasource(DatasourceType(integration['type']), params=integration, dbutils=self.dbutils, stage=self.stage))
+            sources.append(DatasourceFactory.getDatasource(DatasourceType(integration['type']), params=integration, dbutils=self.dbutils, spark=self.spark, stage=self.stage))
 
         return sources
 
@@ -31,7 +31,7 @@ class ETLTask(Task):
         params = [] if ( params is None or 'destination_datasources' not in params) else params['destination_datasources']
         for integration in params:
             print(f'Configuring destination:${integration}')
-            destinations.append(DatasourceFactory.getDatasource(DatasourceType(integration['type']), params=integration, dbutils=self.dbutils, stage=self.stage))
+            destinations.append(DatasourceFactory.getDatasource(DatasourceType(integration['type']), params=integration, dbutils=self.dbutils, spark=self.spark, stage=self.stage))
 
         return destinations
 
@@ -45,7 +45,7 @@ class ETLTask(Task):
         dataFrames = []
         for index, source in enumerate(self.sources):
             print(f'Reading from : {params["source_datasources"][index]}')
-            df = source.read(params['source_datasources'][index], spark=self.spark)
+            df = source.read()
             print(df.head())
             dataFrames.append(df)
 
@@ -62,8 +62,9 @@ class ETLTask(Task):
             print(f'Writing to : ${params["destination_datasources"][index]}')
             df = dataFrames[index]
             destination_params = params['destination_datasources'][index]
+
             if df.count() > 0:
-                destination.write(dataFrames[index], destination_params, spark=self.spark)
+                destination.write(dataFrames[index])
             else:
                 truncate_on_emtpy = destination_params["truncate_on_emtpy"]
                 if truncate_on_emtpy is True:
@@ -94,7 +95,7 @@ class ETLTask(Task):
         print('********************************************')
         dataFrames = self.transform(dataFrames=dataFrames, params=self.conf)
         print('********************************************')
-        print('*************   Loading *******FKLDFJDKJFKDFJKDJFDKFJkD  ******************')
+        print('*************   Loading ********************')
         print('********************************************')
         self.load(dataFrames=dataFrames, params=self.conf)
 
