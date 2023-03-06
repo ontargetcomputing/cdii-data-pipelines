@@ -1,8 +1,16 @@
+create_lat_long: False
+join_column: IRWINID
+columns_to_add:
+  - Label
+  - ComplexName
+  - GISAcres
+  - ComplexID
 source_datasources:
   - type: databricks
     table: ahd_wildfires.silver.california_fires_historical_points_good
-
-
+  - type: databricks
+    table: ahd_wildfires.silver.california_fires_historical_perims_good
 destination_datasources:
   - type: databricks
-    table: ahd_wildfires.silver.california_fires_historical_points_good
+    table: ahd_wildfires.gold.california_fires_points_good
+    truncate_on_empty: True

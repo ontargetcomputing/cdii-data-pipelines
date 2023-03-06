@@ -17,6 +17,8 @@ PACKAGE_REQUIREMENTS = [
   #$"Datetime==5.0"
   #"geoalchemy2==0.10.2",
   "geopandas==0.12.2",
+  "numpy==1.24.2",
+  "geopy==2.2.0"
   #"sqlalchemy==1.4.31",
   #"psycopg2-binary==2.9.2",
   #"rtree==1.0.0",

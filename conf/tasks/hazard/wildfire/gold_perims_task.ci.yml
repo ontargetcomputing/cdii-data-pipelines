@@ -1,0 +1,28 @@
+create_lat_long: True
+join_column: IRWINID
+drop_columns:
+  - IncidentName
+merge_columns:
+  - Label
+  - IrwinID
+  - DailyAcres
+  - CalculatedAcres
+  - PercentContained
+  - POOCounty
+  - latitude
+  - longitude
+  - IncidentName
+  - FireDiscoveryDateTime
+source_datasources:
+  - type: databricks
+    table: ahd_wildfires.silver.california_fires_historical_perims_good
+  - type: databricks
+    table: ahd_wildfires.silver.california_fires_historical_points_good
+  - type: databricks
+    table: ahd_wildfires.gold.california_fires_perims_good
+
+
+
+
+
+

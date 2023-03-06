@@ -5,7 +5,6 @@ source_datasources:
     table: ahd_wildfires.bronze.california_shape
   - type: databricks
     table: ahd_wildfires.bronze.ca_county_oes_shape 
-
 destination_datasources:
   - type: databricks
     table: ahd_wildfires.silver.california_fires_historical_points_good
