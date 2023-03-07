@@ -19,9 +19,9 @@ class WildfireGoldTask(ETLTask):
         print("Transforming")
         if dataFrames[0].count() > 0:
             dataFrames = WildfireGoldTask._create_geodataframes(dataFrames, params=params)
-            dataFrames = WildfireGoldTask._create_lat_long(dataFrames, params=params)
+            # dataFrames = WildfireGoldTask._create_lat_long(dataFrames, params=params)
             dataFrame = WildfireGoldTask._merge_datasets(dataFrames, params=params)
-            dataFrame = WildfireGoldTask._create_poly(dataFrame)
+            # dataFrame = WildfireGoldTask._create_poly(dataFrame)
             dataFrame = WildfireGoldTask._convert_NaN_to_None(dataFrame)
             dataFrame = WildfireGoldTask._drop_columns(dataFrame, params=params)
 

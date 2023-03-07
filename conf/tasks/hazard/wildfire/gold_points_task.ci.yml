@@ -5,6 +5,7 @@ merge_columns:
   - ComplexName
   - GISAcres
   - ComplexID
+  - IRWINID
 drop_columns:
   - county_x
   - county_y
