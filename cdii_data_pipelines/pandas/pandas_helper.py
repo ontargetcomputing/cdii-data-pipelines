@@ -1,6 +1,7 @@
 
 import pyspark as pyspark
 import geopandas as gpd
+import pandas as pd
 from shapely import wkt
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, IntegerType
@@ -15,7 +16,8 @@ class PandasHelper():
         geometry_column = 'geometry'
         pandas_df = pysparksql_df.toPandas() 
         pandas_df[geometry_column] = pandas_df[geometry_column].apply(wkt.loads)
-        return gpd.GeoDataFrame(pandas_df, geometry=geometry_column)
+
+        return gpd.GeoDataFrame(pandas_df, crs='EPSG:4326', geometry=geometry_column)
 
     @staticmethod
     def geopandas_to_pysparksql(gpd_df: gpd.GeoDataFrame=None, spark: SparkSession=None) -> pyspark.sql.DataFrame :
@@ -30,7 +32,7 @@ class PandasHelper():
             if STANDARD_GEOMETRY_FIELD in gpd_df.columns:
                 gpd_df[STANDARD_GEOMETRY_FIELD] = gpd_df[STANDARD_GEOMETRY_FIELD].apply(lambda x: wkt.dumps(x))
 
-            return spark.createDataFrame(gpd_df)
+            return spark.createDataFrame(pd.DataFrame(gpd_df))
         else:
             return PandasHelper.empty_spark_sql_dataframe(spark)
 

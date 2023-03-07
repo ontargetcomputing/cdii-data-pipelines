@@ -1,10 +1,15 @@
 create_lat_long: False
 join_column: IRWINID
-columns_to_add:
+merge_columns:
   - Label
   - ComplexName
   - GISAcres
   - ComplexID
+drop_columns:
+  - county_x
+  - county_y
+  - oes_region_x
+  - oes_region_y
 source_datasources:
   - type: databricks
     table: ahd_wildfires.silver.california_fires_historical_points_good

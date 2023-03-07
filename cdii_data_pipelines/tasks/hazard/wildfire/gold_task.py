@@ -1,13 +1,11 @@
 from cdii_data_pipelines.tasks.etl_task import ETLTask
 from cdii_data_pipelines.pandas.geopandas_wrapper import GeoPandasWrapper
 from cdii_data_pipelines.pandas.pandas_wrapper import PandasWrapper
+from cdii_data_pipelines.pandas.pandas_helper import PandasHelper
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 import os
 from array import array
-# import pandas as pd
-# import geopandas as gpd
-from shapely import wkt
 import geopy
 import geopy.distance
 from shapely import geometry
@@ -19,16 +17,26 @@ class WildfireGoldTask(ETLTask):
  
     def transform(self, dataFrames: array, params: dict=None) -> array:
         print("Transforming")
+        dataFrames = WildfireGoldTask._create_geodataframes(dataFrames, params=params)
         dataFrames = WildfireGoldTask._create_lat_long(dataFrames, params=params)
-        dataFrames = WildfireGoldTask._drop_columns(dataFrames, params=params)
         dataFrame = WildfireGoldTask._merge_datasets(dataFrames, params=params)
         dataFrame = WildfireGoldTask._create_poly(dataFrame)
         dataFrame = WildfireGoldTask._convert_NaN_to_None(dataFrame)
-        
+        dataFrame = WildfireGoldTask._drop_columns(dataFrame, params=params)
+
         dataFramesToReturn = []
-        dataFramesToReturn[0] = dataFrame
+        dataFramesToReturn.append(PandasHelper.geopandas_to_pysparksql(gpd_df=dataFrame, spark=self.spark))
         return dataFramesToReturn
 
+    @staticmethod 
+    def _create_geodataframes(dataFrames: array=None, params: dict=None) -> array:
+        geo_data_0 = PandasHelper.pysparksql_to_geopandas(dataFrames[0])
+        geo_data_1 = PandasHelper.pysparksql_to_geopandas(dataFrames[1])
+        new_dataFrames = []
+        new_dataFrames.append(geo_data_0)
+        new_dataFrames.append(geo_data_1)
+        return new_dataFrames
+    
     @staticmethod 
     def _create_lat_long(dataFrames: array=None, params: dict=None) -> array:
         create_lat_long = params['create_lat_long']
@@ -42,27 +50,21 @@ class WildfireGoldTask(ETLTask):
         return dataFrames
 
     @staticmethod 
-    def _drop_columns(dataFrames: array=None, params: dict=None) -> array:
+    def _drop_columns(dataFrame, params: dict=None) -> array:
         if 'drop_columns' in params.keys():
             cols_to_drop = params['drop_columns']
-            dataFrames[0] = dataFrames[0].drop(columns=cols_to_drop)
+            print(f'Dropping columns {cols_to_drop}')
+            dataFrame = dataFrame.drop(columns=cols_to_drop)
         
-        return dataFrames
+        return dataFrame
 
     @staticmethod 
-    def _merge_datasets(dataFrames: array=None, params: dict=None) -> array:
-        geometry_col = 'geometry'
-
-        geo_data_0 = dataFrames[0].toPandas()
-        geo_data_0[geometry_col] = geo_data_0[geometry_col].apply(wkt.loads)
-        geo_data_0 = GeoPandasWrapper.GeoDataFrame(geo_data_0, geometry=geometry_col)
-
-        geo_data_1 = dataFrames[1].toPandas()
-        geo_data_1[geometry_col] = geo_data_1[geometry_col].apply(wkt.loads)
-        geo_data_1 = GeoPandasWrapper.GeoDataFrame(geo_data_1, geometry=geometry_col)
-
+    def _merge_datasets(dataFrames: array=None, params: dict=None) -> DataFrame:
+        if len(dataFrames[0]) == 0 or len(dataFrames[1]) == 0:
+            return dataFrames[0]
+        
         cols_to_mergs = params['merge_columns']
-        merged = geo_data_0.merge(geo_data_1[cols_to_mergs], how="left", left_on=params['join_column'], right_on=params['join_column'])
+        merged = dataFrames[0].merge(dataFrames[1][cols_to_mergs], how="left", left_on=params['join_column'], right_on=params['join_column'])
         return merged
 
     @staticmethod 
