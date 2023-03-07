@@ -17,17 +17,21 @@ class WildfireGoldTask(ETLTask):
  
     def transform(self, dataFrames: array, params: dict=None) -> array:
         print("Transforming")
-        dataFrames = WildfireGoldTask._create_geodataframes(dataFrames, params=params)
-        dataFrames = WildfireGoldTask._create_lat_long(dataFrames, params=params)
-        dataFrame = WildfireGoldTask._merge_datasets(dataFrames, params=params)
-        dataFrame = WildfireGoldTask._create_poly(dataFrame)
-        dataFrame = WildfireGoldTask._convert_NaN_to_None(dataFrame)
-        dataFrame = WildfireGoldTask._drop_columns(dataFrame, params=params)
+        if dataFrames[0].count() > 0:
+            dataFrames = WildfireGoldTask._create_geodataframes(dataFrames, params=params)
+            dataFrames = WildfireGoldTask._create_lat_long(dataFrames, params=params)
+            dataFrame = WildfireGoldTask._merge_datasets(dataFrames, params=params)
+            dataFrame = WildfireGoldTask._create_poly(dataFrame)
+            dataFrame = WildfireGoldTask._convert_NaN_to_None(dataFrame)
+            dataFrame = WildfireGoldTask._drop_columns(dataFrame, params=params)
 
-        dataFramesToReturn = []
-        dataFramesToReturn.append(PandasHelper.geopandas_to_pysparksql(gpd_df=dataFrame, spark=self.spark))
-        return dataFramesToReturn
-
+            dataFramesToReturn = []
+            dataFramesToReturn.append(PandasHelper.geopandas_to_pysparksql(gpd_df=dataFrame, spark=self.spark))
+            return dataFramesToReturn
+        else:
+            print('No Data to Transform')
+            return dataFrames
+        
     @staticmethod 
     def _create_geodataframes(dataFrames: array=None, params: dict=None) -> array:
         geo_data_0 = PandasHelper.pysparksql_to_geopandas(dataFrames[0])
